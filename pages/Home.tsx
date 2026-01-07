@@ -33,10 +33,10 @@ const Home: React.FC = () => {
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-[200px] h-[200px] md:w-[500px] md:h-[500px] rounded-full opacity-10 blur-[60px] md:blur-[120px]" style={{ backgroundColor: state.config.primaryColor }}></div>
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-[200px] h-[200px] md:w-[500px] md:h-[500px] rounded-full opacity-10 blur-[60px] md:blur-[120px]" style={{ backgroundColor: '#2d3047' }}></div>
 
-        <div className="container mx-auto px-4 md:px-6 grid lg:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
-          <div className="space-y-6 md:space-y-10 animate-fade-in-up text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-8xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
-              Create & Run Your <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${state.config.primaryColor}, #2d3047)` }}>Brand</span> With Retlcommerce
+        <div className="container mx-auto px-4 md:px-6 grid lg:grid-cols-[1.2fr_0.8fr] gap-10 md:gap-16 items-center relative z-10">
+          <div className="space-y-6 md:space-y-10 animate-fade-in-up text-center lg:text-left relative z-20">
+            <h1 className="text-3xl sm:text-4xl md:text-7xl lg:text-7xl xl:text-8xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
+              Run Your <span className="text-transparent bg-clip-text" style={{ backgroundImage: `linear-gradient(to right, ${state.config.primaryColor}, #2d3047)` }}>Brand</span> With Retlcommerce
             </h1>
             <p className="text-sm sm:text-base md:text-xl text-slate-600 dark:text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
               We provide the strategic brand consultancy and technical execution needed for the next generation of retailers in Pakistan.
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
-          <div className="hidden lg:block relative animate-slide-in-right">
+          <div className="hidden lg:block relative animate-slide-in-right z-10">
              <div className="relative z-20 rounded-[50px] overflow-hidden shadow-2xl transition-all duration-700 hover:scale-[1.01]">
                <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&q=80&w=1000" alt="Retlcommerce Strategic Workspace" className="w-full h-auto object-cover" />
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
