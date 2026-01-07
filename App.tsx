@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { SiteProvider } from './store';
 import Layout from './components/Layout';
 import ScrollToTop from './components/ScrollToTop';
