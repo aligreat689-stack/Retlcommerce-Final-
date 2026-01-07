@@ -121,28 +121,33 @@ const Contact: React.FC = () => {
                  <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Full Name</label>
-                      <input required type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputClasses} style={{ ringColor: state.config.primaryColor }} placeholder="John Doe" />
+                      {/* Fix: Use --tw-ring-color for dynamic Tailwind ring color */}
+                      <input required type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputClasses} style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties} placeholder="John Doe" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Email Address</label>
-                      <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputClasses} style={{ ringColor: state.config.primaryColor }} placeholder="john@example.com" />
+                      {/* Fix: Use --tw-ring-color for dynamic Tailwind ring color */}
+                      <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputClasses} style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties} placeholder="john@example.com" />
                     </div>
                  </div>
                  <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Phone Number</label>
-                      <input required type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className={inputClasses} style={{ ringColor: state.config.primaryColor }} placeholder="+92 000 0000000" />
+                      {/* Fix: Use --tw-ring-color for dynamic Tailwind ring color */}
+                      <input required type="tel" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className={inputClasses} style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties} placeholder="+92 000 0000000" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Service Interest</label>
-                      <select value={form.service} onChange={e => setForm({...form, service: e.target.value})} className={inputClasses} style={{ ringColor: state.config.primaryColor }}>
+                      {/* Fix: Use --tw-ring-color for dynamic Tailwind ring color */}
+                      <select value={form.service} onChange={e => setForm({...form, service: e.target.value})} className={inputClasses} style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties}>
                         {state.services.map(s => <option key={s.id} value={s.title}>{s.title}</option>)}
                       </select>
                     </div>
                  </div>
                  <div className="space-y-2">
                     <label className="text-xs font-bold uppercase tracking-widest text-slate-500">Your Message</label>
-                    <textarea required rows={5} value={form.message} onChange={e => setForm({...form, message: e.target.value})} className={`${inputClasses} resize-none`} style={{ ringColor: state.config.primaryColor }} placeholder="Describe your project goals..."></textarea>
+                    {/* Fix: Use --tw-ring-color for dynamic Tailwind ring color */}
+                    <textarea required rows={5} value={form.message} onChange={e => setForm({...form, message: e.target.value})} className={`${inputClasses} resize-none`} style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties} placeholder="Describe your project goals..."></textarea>
                  </div>
                  <button 
                   disabled={isSubmitting}

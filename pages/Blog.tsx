@@ -52,7 +52,8 @@ const Blog: React.FC = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 dark:bg-slate-900 dark:text-white border border-slate-100 dark:border-white/10 focus:ring-2 focus:outline-none transition-all shadow-sm"
-              style={{ ringColor: state.config.primaryColor }}
+              // Fix: Use --tw-ring-color for dynamic Tailwind ring color instead of non-existent ringColor property
+              style={{ '--tw-ring-color': state.config.primaryColor } as React.CSSProperties}
             />
           </div>
         </div>
