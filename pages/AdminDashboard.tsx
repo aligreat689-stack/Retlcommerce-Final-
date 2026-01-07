@@ -82,13 +82,20 @@ const AdminDashboard: React.FC = () => {
     showToast("CSV Export Successful");
   };
 
+  // Robust filtering for categories
   const inquiries = useMemo(() => 
-    (state.submissions || []).filter(s => s.service !== 'ERP Software' && s.service !== 'Newsletter'),
+    (state.submissions || []).filter(s => {
+      const svc = (s.service || '').trim().toLowerCase();
+      return svc !== 'erp software' && svc !== 'newsletter';
+    }),
     [state.submissions]
   );
 
   const waitlist = useMemo(() => 
-    (state.submissions || []).filter(s => s.service === 'ERP Software' || s.service === 'Newsletter'),
+    (state.submissions || []).filter(s => {
+      const svc = (s.service || '').trim().toLowerCase();
+      return svc === 'erp software' || svc === 'newsletter';
+    }),
     [state.submissions]
   );
 
@@ -115,6 +122,13 @@ const AdminDashboard: React.FC = () => {
     setEditingTask(null);
     showToast('Task details synchronized');
   };
+
+  const EmptyState = ({ message }: { message: string }) => (
+    <div className="py-20 text-center flex flex-col items-center justify-center space-y-4 opacity-40">
+       <i className="fas fa-folder-open text-6xl"></i>
+       <p className="font-black text-xs uppercase tracking-[0.2em]">{message}</p>
+    </div>
+  );
 
   if (!state.isAuthenticated) {
     return (
@@ -163,29 +177,60 @@ const AdminDashboard: React.FC = () => {
        {/* Global Overlay for Modals */}
        {(editingService || editingPost || editingMember || editingTask) && <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[1000]" onClick={() => { setEditingService(null); setEditingPost(null); setEditingMember(null); setEditingTask(null); }}></div>}
 
-       {/* Sidebar */}
+       {/* Enhanced Sidebar */}
        <div className="w-64 bg-slate-900 text-white flex flex-col p-8 fixed h-full z-50">
           <div className="mb-12 flex items-center space-x-3">
              <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-slate-900" style={{ backgroundColor: state.config.primaryColor }}>R</div>
              <h2 className="text-xl font-black tracking-tighter text-white">ADMIN 2.0</h2>
           </div>
           <nav className="flex-grow space-y-2 overflow-y-auto no-scrollbar">
-             {['Overview', 'Config', 'Services', 'Blog', 'Team', 'Tasks', 'Inquiries', 'Waitlist'].map(t => (
-               <button key={t} onClick={() => setActiveTab(t)} className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === t ? 'bg-teal-400 text-slate-900' : 'hover:bg-white/5 text-slate-400'}`}>{t}</button>
+             {[
+               {id: 'Overview', icon: 'fa-chart-pie'},
+               {id: 'Config', icon: 'fa-cog'},
+               {id: 'Services', icon: 'fa-rocket'},
+               {id: 'Blog', icon: 'fa-newspaper'},
+               {id: 'Team', icon: 'fa-users'},
+               {id: 'Tasks', icon: 'fa-tasks'},
+               {id: 'Inquiries', icon: 'fa-envelope-open-text'},
+               {id: 'Waitlist', icon: 'fa-list-ol'}
+             ].map(t => (
+               <button 
+                key={t.id} 
+                onClick={() => setActiveTab(t.id)} 
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === t.id ? 'bg-teal-400 text-slate-900' : 'hover:bg-white/5 text-slate-400'}`}
+               >
+                 <i className={`fas ${t.icon} w-5`}></i>
+                 <span>{t.id}</span>
+               </button>
              ))}
           </nav>
-          <div className="mt-10 pt-6 border-t border-white/5">
-             <button onClick={logout} className="w-full py-3 rounded-xl text-red-400 font-black text-xs uppercase hover:bg-red-500/10 transition-all text-left px-4">Logout</button>
+          <div className="mt-10 pt-6 border-t border-white/5 space-y-4">
+             <div className="flex items-center space-x-3 px-4">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-black">AD</div>
+                <div className="overflow-hidden">
+                   <p className="text-[10px] font-black truncate">Retl Admin</p>
+                   <p className="text-[8px] opacity-40 uppercase tracking-widest">Master Control</p>
+                </div>
+             </div>
+             <button onClick={logout} className="w-full py-3 rounded-xl text-red-400 font-black text-xs uppercase hover:bg-red-500/10 transition-all text-left px-4 flex items-center space-x-3">
+                <i className="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+             </button>
           </div>
        </div>
 
        <div className="flex-grow pl-64">
           <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-10 py-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
-             <h1 className="text-2xl font-black uppercase tracking-tight">{activeTab}</h1>
+             <div>
+                <h1 className="text-2xl font-black uppercase tracking-tight">{activeTab}</h1>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Node Registry Management</p>
+             </div>
              <div className="flex items-center space-x-4">
-                <button onClick={toggleDarkMode} className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center hover:scale-105 transition-transform">
+                <button onClick={toggleDarkMode} className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center hover:scale-105 transition-transform text-slate-600 dark:text-slate-400">
                    <i className={`fas ${state.isDarkMode ? 'fa-sun' : 'fa-moon'}`}></i>
                 </button>
+                <div className="h-8 w-[1px] bg-slate-100 dark:bg-white/5 mx-2"></div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-teal-500">{new Date().toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</p>
              </div>
           </header>
 
@@ -201,35 +246,45 @@ const AdminDashboard: React.FC = () => {
                 
                 <div className="grid lg:grid-cols-2 gap-8">
                    <div className="p-8 rounded-[40px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/5">
-                      <h3 className="text-lg font-black uppercase tracking-tight mb-6">Recent Inquiries</h3>
-                      <div className="space-y-4">
-                        {inquiries.slice(0, 5).map(sub => (
-                          <div key={sub.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-white/5">
-                             <div><p className="font-bold text-sm">{sub.name}</p><p className="text-[10px] opacity-50 uppercase font-black">{sub.service}</p></div>
-                             <span className="text-[10px] opacity-40">{new Date(sub.date).toLocaleDateString()}</span>
-                          </div>
-                        ))}
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-black uppercase tracking-tight">Recent Inquiries</h3>
+                        <button onClick={() => setActiveTab('Inquiries')} className="text-[10px] font-black uppercase tracking-widest text-teal-500 hover:underline">View All</button>
                       </div>
+                      {inquiries.length > 0 ? (
+                        <div className="space-y-4">
+                          {inquiries.slice(0, 5).map(sub => (
+                            <div key={sub.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-white/5">
+                               <div><p className="font-bold text-sm">{sub.name}</p><p className="text-[10px] opacity-50 uppercase font-black">{sub.service}</p></div>
+                               <span className="text-[10px] opacity-40">{new Date(sub.date).toLocaleDateString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : <EmptyState message="No Inquiries Detected" />}
                    </div>
                    <div className="p-8 rounded-[40px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/5">
-                      <h3 className="text-lg font-black uppercase tracking-tight mb-6">Internal Tasks</h3>
-                      <div className="space-y-4">
-                         {state.tasks.slice(0, 5).map(task => (
-                           <div key={task.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-white/5">
-                              <div className="flex items-center space-x-3">
-                                <div className={`w-2 h-2 rounded-full ${task.priority === TaskPriority.CRITICAL ? 'bg-red-500' : 'bg-teal-400'}`}></div>
-                                <p className="font-bold text-sm line-clamp-1">{task.title}</p>
-                              </div>
-                              <select 
-                                value={task.status} 
-                                onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as TaskStatus)}
-                                className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer"
-                              >
-                                {Object.values(TaskStatus).map(s => <option key={s} value={s}>{s}</option>)}
-                              </select>
-                           </div>
-                         ))}
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-black uppercase tracking-tight">Internal Tasks</h3>
+                        <button onClick={() => setActiveTab('Tasks')} className="text-[10px] font-black uppercase tracking-widest text-teal-500 hover:underline">View All</button>
                       </div>
+                      {state.tasks.length > 0 ? (
+                        <div className="space-y-4">
+                           {state.tasks.slice(0, 5).map(task => (
+                             <div key={task.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-white/5">
+                                <div className="flex items-center space-x-3">
+                                  <div className={`w-2 h-2 rounded-full ${task.priority === TaskPriority.CRITICAL ? 'bg-red-500' : 'bg-teal-400'}`}></div>
+                                  <p className="font-bold text-sm line-clamp-1">{task.title}</p>
+                                </div>
+                                <select 
+                                  value={task.status} 
+                                  onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as TaskStatus)}
+                                  className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer"
+                                >
+                                  {Object.values(TaskStatus).map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                             </div>
+                           ))}
+                        </div>
+                      ) : <EmptyState message="No Active Tasks" />}
                    </div>
                 </div>
               </div>
@@ -242,19 +297,19 @@ const AdminDashboard: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-6">
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase opacity-50 ml-1">Site Title</label>
-                          <input name="siteName" value={state.config.siteName} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" />
+                          <input name="siteName" value={state.config.siteName} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold focus:border-teal-400" />
                        </div>
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase opacity-50 ml-1">Primary Brand Color</label>
                           <div className="flex items-center space-x-3">
-                             <input name="primaryColor" value={state.config.primaryColor} onChange={handleConfigChange} className="flex-grow px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" />
-                             <div className="w-14 h-14 rounded-2xl shadow-xl" style={{ backgroundColor: state.config.primaryColor }}></div>
+                             <input name="primaryColor" value={state.config.primaryColor} onChange={handleConfigChange} className="flex-grow px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold focus:border-teal-400" />
+                             <div className="w-14 h-14 rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: state.config.primaryColor }}></div>
                           </div>
                        </div>
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase opacity-50 ml-1">Tagline</label>
-                       <input name="tagline" value={state.config.tagline} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" />
+                       <input name="tagline" value={state.config.tagline} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold focus:border-teal-400" />
                     </div>
                  </section>
 
@@ -263,16 +318,12 @@ const AdminDashboard: React.FC = () => {
                     <div className="grid md:grid-cols-2 gap-6">
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase opacity-50 ml-1">Main Logo URL</label>
-                          <input name="logoImage" value={state.config.logoImage} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" placeholder="https://..." />
+                          <input name="logoImage" value={state.config.logoImage} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" placeholder="https://..." />
                        </div>
                        <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase opacity-50 ml-1">Favicon URL</label>
-                          <input name="faviconImage" value={state.config.faviconImage} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" placeholder="https://..." />
+                          <input name="faviconImage" value={state.config.faviconImage} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" placeholder="https://..." />
                        </div>
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase opacity-50 ml-1">Footer Logo URL</label>
-                       <input name="footerLogoImage" value={state.config.footerLogoImage} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" placeholder="https://..." />
                     </div>
                  </section>
 
@@ -282,7 +333,7 @@ const AdminDashboard: React.FC = () => {
                        {Object.keys(state.config.socialLinks).map(platform => (
                          <div key={platform} className="space-y-2">
                             <label className="text-[10px] font-black uppercase opacity-50 ml-1">{platform}</label>
-                            <input name={`social_${platform}`} value={state.config.socialLinks[platform]} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold text-xs" placeholder={`https://${platform}.com/...`} />
+                            <input name={`social_${platform}`} value={state.config.socialLinks[platform]} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold text-xs" placeholder={`https://${platform}.com/...`} />
                          </div>
                        ))}
                     </div>
@@ -292,11 +343,11 @@ const AdminDashboard: React.FC = () => {
                     <h3 className="font-black text-xs uppercase tracking-widest text-slate-400">SEO Meta Layers</h3>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase opacity-50 ml-1">Meta Title</label>
-                       <input name="seo_metaTitle" value={state.config.seo.metaTitle} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" />
+                       <input name="seo_metaTitle" value={state.config.seo.metaTitle} onChange={handleConfigChange} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold" />
                     </div>
                     <div className="space-y-2">
                        <label className="text-[10px] font-black uppercase opacity-50 ml-1">Meta Description</label>
-                       <textarea name="seo_metaDescription" value={state.config.seo.metaDescription} onChange={handleConfigChange} rows={3} className="w-full px-5 py-4 rounded-2xl border bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold resize-none" />
+                       <textarea name="seo_metaDescription" value={state.config.seo.metaDescription} onChange={handleConfigChange} rows={3} className="w-full px-5 py-4 rounded-2xl border border-slate-200 bg-slate-50 dark:bg-slate-900 dark:border-white/5 outline-none font-bold resize-none" />
                     </div>
                  </section>
                  
@@ -321,9 +372,9 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'Blog' && (
               <div className="space-y-6">
-                {state.posts.map(post => (
+                {state.posts.length > 0 ? state.posts.map(post => (
                   <div key={post.id} className="flex items-center p-6 bg-slate-50 dark:bg-slate-900 rounded-[35px] border border-slate-100 dark:border-white/5">
-                    <div className="w-24 h-16 rounded-2xl overflow-hidden shrink-0 mr-6">
+                    <div className="w-24 h-16 rounded-2xl overflow-hidden shrink-0 mr-6 bg-slate-200">
                        <img src={post.image || FALLBACK_IMAGE} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-grow">
@@ -332,7 +383,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                     <button onClick={() => setEditingPost(post)} className="px-6 py-3 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest">Edit</button>
                   </div>
-                ))}
+                )) : <EmptyState message="No Blog Articles Published" />}
               </div>
             )}
 
@@ -340,7 +391,7 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {state.team.map(member => (
                   <div key={member.id} className="p-8 rounded-[40px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/5 group relative flex flex-col items-center text-center">
-                     <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 border-white dark:border-white/5 shadow-xl">
+                     <div className="w-24 h-24 rounded-full overflow-hidden mb-6 border-4 border-white dark:border-white/5 shadow-xl bg-slate-200">
                         <img src={member.image || FALLBACK_IMAGE} className="w-full h-full object-cover" />
                      </div>
                      <h4 className="font-black text-xl mb-1">{member.name}</h4>
@@ -354,40 +405,42 @@ const AdminDashboard: React.FC = () => {
 
             {activeTab === 'Tasks' && (
               <div className="space-y-6">
-                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {state.tasks.map(task => (
-                      <div key={task.id} className="p-8 rounded-[35px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/5 relative group">
-                        <div className="flex justify-between items-start mb-6">
-                           <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                             task.priority === TaskPriority.CRITICAL ? 'bg-red-500 text-white' : 
-                             task.priority === TaskPriority.HIGH ? 'bg-orange-500 text-white' :
-                             'bg-teal-400 text-slate-900'
-                           }`}>
-                             {task.priority}
-                           </div>
-                           <button onClick={() => setEditingTask(task)} className="text-slate-400 hover:text-teal-400 transition-colors"><i className="fas fa-edit"></i></button>
+                 {state.tasks.length > 0 ? (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {state.tasks.map(task => (
+                        <div key={task.id} className="p-8 rounded-[35px] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-white/5 relative group">
+                            <div className="flex justify-between items-start mb-6">
+                            <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                                task.priority === TaskPriority.CRITICAL ? 'bg-red-500 text-white' : 
+                                task.priority === TaskPriority.HIGH ? 'bg-orange-500 text-white' :
+                                'bg-teal-400 text-slate-900'
+                            }`}>
+                                {task.priority}
+                            </div>
+                            <button onClick={() => setEditingTask(task)} className="text-slate-400 hover:text-teal-400 transition-colors"><i className="fas fa-edit"></i></button>
+                            </div>
+                            <h4 className="font-black text-lg mb-2 leading-tight">{task.title}</h4>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-6 font-medium">{task.description}</p>
+                            
+                            <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/5">
+                            <div className="flex items-center space-x-2">
+                                <div className="w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black">
+                                {state.team.find(t => t.id === task.assignedToId)?.name.charAt(0) || '?'}
+                                </div>
+                                <span className="text-[10px] font-black uppercase tracking-tight opacity-40">Assigned Node</span>
+                            </div>
+                            <select 
+                                value={task.status} 
+                                onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as TaskStatus)}
+                                className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer"
+                            >
+                                {Object.values(TaskStatus).map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                            </div>
                         </div>
-                        <h4 className="font-black text-lg mb-2 leading-tight">{task.title}</h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-6 font-medium">{task.description}</p>
-                        
-                        <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/5">
-                           <div className="flex items-center space-x-2">
-                             <div className="w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black">
-                               {state.team.find(t => t.id === task.assignedToId)?.name.charAt(0) || '?'}
-                             </div>
-                             <span className="text-[10px] font-black uppercase tracking-tight opacity-40">Assigned To</span>
-                           </div>
-                           <select 
-                            value={task.status} 
-                            onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as TaskStatus)}
-                            className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer"
-                           >
-                            {Object.values(TaskStatus).map(s => <option key={s} value={s}>{s}</option>)}
-                           </select>
-                        </div>
-                      </div>
-                    ))}
-                 </div>
+                        ))}
+                    </div>
+                 ) : <EmptyState message="No Tasks in Registry" />}
               </div>
             )}
 
@@ -396,46 +449,60 @@ const AdminDashboard: React.FC = () => {
                  <div className="flex justify-between items-center bg-slate-900 p-8 rounded-[35px] text-white">
                     <div>
                       <h3 className="text-2xl font-black">CRM Hub</h3>
-                      <p className="text-slate-400 font-medium">Capture every lead in real-time.</p>
+                      <p className="text-slate-400 font-medium text-xs">Direct strategic inquiries node.</p>
                     </div>
                     <button onClick={() => exportToCSV(inquiries, "Retlcommerce_Inquiries")} className="px-8 py-4 rounded-2xl bg-teal-400 text-slate-900 font-black uppercase text-xs tracking-widest">Export Dataset</button>
                  </div>
-                 <div className="space-y-4">
-                    {inquiries.map(sub => (
-                      <div key={sub.id} className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
-                         <button onClick={() => deleteSubmission(sub.id)} className="absolute top-6 right-8 text-red-400 opacity-20 hover:opacity-100 transition-opacity"><i className="fas fa-trash"></i></button>
-                         <div className="space-y-2">
-                            <p className="text-xl font-black">{sub.name}</p>
-                            <p className="text-xs text-teal-600 dark:text-teal-400 font-bold">{sub.email}</p>
-                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">{sub.service}</p>
-                         </div>
-                         <div className="flex-grow md:mx-10 p-6 bg-white dark:bg-slate-950 rounded-3xl border border-slate-100 dark:border-white/5 italic text-sm text-slate-500 font-medium">
-                            "{sub.message}"
-                         </div>
-                         <div className="text-right">
-                            <p className="text-xs font-black opacity-30">{new Date(sub.date).toLocaleDateString()}</p>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mt-1">{sub.phone}</p>
-                         </div>
-                      </div>
-                    ))}
-                 </div>
+                 {inquiries.length > 0 ? (
+                    <div className="space-y-4">
+                        {inquiries.map(sub => (
+                        <div key={sub.id} className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[40px] border border-slate-100 dark:border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
+                            <button onClick={() => deleteSubmission(sub.id)} className="absolute top-6 right-8 text-red-400 opacity-20 hover:opacity-100 transition-opacity"><i className="fas fa-trash text-xs"></i></button>
+                            <div className="space-y-2">
+                                <p className="text-xl font-black">{sub.name}</p>
+                                <p className="text-xs text-teal-600 dark:text-teal-400 font-bold">{sub.email}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">{sub.service}</p>
+                            </div>
+                            <div className="flex-grow md:mx-10 p-6 bg-white dark:bg-slate-950 rounded-3xl border border-slate-100 dark:border-white/5 italic text-sm text-slate-500 font-medium">
+                                "{sub.message}"
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs font-black opacity-30">{new Date(sub.date).toLocaleDateString()}</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40 mt-1">{sub.phone}</p>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                 ) : <EmptyState message="No Inquiries Captured" />}
               </div>
             )}
 
             {activeTab === 'Waitlist' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {waitlist.map(sub => (
-                  <div key={sub.id} className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[35px] border border-slate-100 dark:border-white/5 flex flex-col justify-between">
-                    <div className="space-y-1">
-                      <p className="font-black text-lg break-all">{sub.email}</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-teal-500">{sub.service}</p>
+              <div className="space-y-8">
+                <div className="flex justify-between items-center bg-slate-900 p-8 rounded-[35px] text-white overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-teal-400/5 blur-2xl -mr-16 -mt-16"></div>
+                    <div>
+                      <h3 className="text-2xl font-black">Growth Pipeline</h3>
+                      <p className="text-slate-400 font-medium text-xs uppercase tracking-widest">ERP 2026 & Newsletter Nodes</p>
                     </div>
-                    <div className="mt-6 flex items-center justify-between border-t border-slate-200 dark:border-white/5 pt-4">
-                      <span className="text-[10px] opacity-40 font-bold">{new Date(sub.date).toLocaleDateString()}</span>
-                      <button onClick={() => deleteSubmission(sub.id)} className="text-red-400 text-xs font-black uppercase tracking-widest">Remove</button>
+                    <button onClick={() => exportToCSV(waitlist, "Retl_Waitlist_Dataset")} className="px-8 py-4 rounded-2xl bg-teal-400 text-slate-900 font-black uppercase text-xs tracking-widest relative z-10">Download List</button>
+                </div>
+                {waitlist.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {waitlist.map(sub => (
+                        <div key={sub.id} className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[35px] border border-slate-100 dark:border-white/5 flex flex-col justify-between group transition-all hover:border-teal-400/30">
+                            <div className="space-y-1">
+                                <p className="font-black text-lg break-all">{sub.email}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-teal-500">{sub.service}</p>
+                            </div>
+                            <div className="mt-8 flex items-center justify-between border-t border-slate-200 dark:border-white/5 pt-5">
+                                <span className="text-[10px] opacity-40 font-bold">{new Date(sub.date).toLocaleDateString()}</span>
+                                <button onClick={() => deleteSubmission(sub.id)} className="text-red-400 text-[10px] font-black uppercase tracking-widest opacity-40 group-hover:opacity-100 transition-opacity">Remove</button>
+                            </div>
+                        </div>
+                        ))}
                     </div>
-                  </div>
-                ))}
+                ) : <EmptyState message="Waitlist Node is Empty" />}
               </div>
             )}
           </main>
@@ -507,30 +574,16 @@ const AdminDashboard: React.FC = () => {
                <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase opacity-50 ml-1">Social Connectivity (Links)</label>
                   <div className="grid md:grid-cols-2 gap-4">
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">LinkedIn</label>
-                        <input value={editingMember.linkedin} onChange={e => setEditingMember({...editingMember, linkedin: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">WhatsApp (Format: +92300...)</label>
-                        <input value={editingMember.whatsapp} onChange={e => setEditingMember({...editingMember, whatsapp: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">Twitter (X)</label>
-                        <input value={editingMember.twitter} onChange={e => setEditingMember({...editingMember, twitter: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">Instagram</label>
-                        <input value={editingMember.instagram} onChange={e => setEditingMember({...editingMember, instagram: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">Facebook</label>
-                        <input value={editingMember.facebook} onChange={e => setEditingMember({...editingMember, facebook: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
-                     <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">TikTok</label>
-                        <input value={editingMember.tiktok} onChange={e => setEditingMember({...editingMember, tiktok: e.target.value})} className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" />
-                     </div>
+                     {['LinkedIn', 'WhatsApp', 'Twitter', 'Instagram', 'Facebook', 'TikTok'].map(plat => (
+                        <div key={plat} className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter ml-1">{plat}</label>
+                            <input 
+                                value={(editingMember as any)[plat.toLowerCase()] || ''} 
+                                onChange={e => setEditingMember({...editingMember, [plat.toLowerCase()]: e.target.value})} 
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none font-bold text-xs" 
+                            />
+                        </div>
+                     ))}
                   </div>
                </div>
 
